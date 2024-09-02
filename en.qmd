@@ -1,0 +1,303 @@
+---
+title: "`r params$title`"
+format:
+  html:
+    toc: false
+    css: ["style.css"]
+    mainfont: Theinhardt
+    fontsize: "16px"
+    # To use instead of self-contained that has been deprecated
+    embed-resources: true
+    # Using custom page layout (via 'style.css')
+    page-layout: custom
+    # Open link in a new window by default
+    link-external-newwindow: true
+    # Display footnotes in pop-up window when hovering on it
+    footnotes-hover: true
+    fig-align: "center"
+    fig-dpi: 320
+    fig-format: retina
+execute:
+  echo: false
+  warning: false
+lang: en
+params:
+  title: "A wide range of postdoctoral careers: challenges and opportunities"
+  publication_date: ""
+  lang: "en"
+  doi: ""
+  github_url: ""
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r general-setup}
+#| include: false
+
+# Install snf.datastory package if not available, otherwise load it
+if (!require("snf.datastory")) {
+  if (!require("devtools")) {
+    install.packages("devtools")
+    library(devtools)
+  }
+  install_github("snsf-data/snf.datastory")
+  library(snf.datastory)
+}
+
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(conflicted)
+library(here)
+library(ggforce)
+
+conflict_prefer("filter", "dplyr")
+
+# Set the locale for date formatting (Windows)
+Sys.setlocale(
+  "LC_TIME",
+  switch(
+    params$lang,
+    en = "English",
+    de = "German",
+    fr = "French"
+  )
+)
+
+# Create function to print number with local language-specific format
+print_num <- function(x) snf.datastory::print_num(x, lang = params$lang)
+
+# Knitr hook for local formatting of printed numbers
+knitr::knit_hooks$set(
+  inline = function(x) {
+    if (!is.numeric(x)) {
+      x
+    } else {
+      print_num(x)
+    }
+  }
+)
+
+
+```
+
+```{r print-header-infos}
+#| results: asis
+
+# Add publication date to header
+cat(format(as_datetime(params$publication_date), "%d.%m.%Y"))
+```
+
+```{r source-data-story-code}
+
+# Various custom functions
+source(here("R/functions/make_figures.R"))
+source(here("R/scripts/translations.R"))
+source(here("R/functions/utils.R"))
+# Loading and preprocessing the data needed for the data story
+source(here("R/scripts/prepare_data.R"))
+# The data used as inline code in the data story
+source(here("R/scripts/inline_code_data.R"))
+
+```
+
+**Improving prospects for early-career researchers is one of the SNSF's main objectives. Interim results of a comprehensive study are now available. They shed light on the careers of postdocs who submitted a funding application in 2018.**
+
+The SNSF commissioned a cohort study (Career Tracker Cohorts, see box) to gain more insights into the careers of early-career researchers. Since 2018, postdocs who have applied for funding from the SNSF have been surveyed as part of the study.
+
+The first people to take part in this study were applicants to mobility grants in autumn 2018 (CTC-18 cohort). This data story sheds light on the careers of these early-career researchers. What would become of them in 2022? We will follow the journeys of Valentina and Marco (fictional characters).
+
+
+::: info-box
+### Ten-year survey of postdocs
+
+The Career Tracker Cohorts Study (CTC) is being conducted by a team from the University of Bern on behalf of the SNSF. This is a longitudinal panel study with yearly cohorts. The target group is all applicants to postdoctoral career funding schemes, regardless of the ultimate funding decision. The funding schemes include (Early) Postdoc.Mobility (see below), Ambizione, PRIMA and Eccellenza.
+
+Each year from 2018 to 2021, a new cohort was added to the survey target group. Since 2022, the survey has only been carried out among the existing cohorts. Spread over ten years, this study should allow us to learn more about the factors and processes that influence careers. In this way, the SNSF obtains invaluable knowledge about different career paths.
+
+
+### Postdoc.Mobility fellowships
+
+Postdoc.Mobility fellowships (as well as the Early Postdoc.Mobility fellowships that were integrated into the Postdoc.Mobility scheme in September 2020) are aimed at researchers who wish to pursue a scientific or academic career in Switzerland after the completion of their doctorates. Research stays abroad enable them to deepen their knowledge, acquire greater scientific independence and strengthen their scientific profiles. These fellowships are awarded for a duration of 18 months (Early Postdoc.Mobility) or 24 months (Postdoc.Mobility). There are two calls for applications each year.
+:::
+
+### Mobility pathways
+
+In autumn 2018, Valentina and Marco each applied for a Postdoc.Mobility fellowship – along with `r n_asked` other people. `r n_grantees_2018` of these applicants were awarded SNSF fellowships in the spring of 2019, including Valentina and Marco. Both left Switzerland in 2019. Valentina went to North America, while Marco stayed in Europe.
+
+In 2019, the most popular regions for Postdoc.Mobility fellowship recipients in the CTC-18 cohort (hereafter CTC-18 grantees) were North America (`r grantees_am_2019`%) and Europe (`r grantees_eu_2019`%). Only `r grantees_other_2019`% travelled to other parts of the world (Africa, Asia, Oceania), while `r grantees_ch_2019`% had not yet gone abroad and remained in Switzerland. Despite not receiving a mobility fellowship, only `r non_grantees_ch_2019`% of the non-grantees of the CTC-18 cohort (hereafter referred to as CTC-18 non-grantees) were still in Switzerland in 2019. `r non_grantees_eu_2019`% chose to move to another European country, `r non_grantees_am_2019`% to North America and `r non_grantees_other_2019`% to another destination (Africa, Asia, Oceania).
+
+After almost two years abroad, Marco completed his stay in 2021 and returned to Switzerland. Valentina was given the opportunity to extend her postdoc and stayed on in North America. In 2022, `r grantees_abroad_2022`% of the CTC-18 cohort, like Valentina, still lived abroad (mainly in Europe). Only `r grantees_ch_2022`% had already returned to Switzerland. The figure below shows the different mobility paths for CTC-18 grantees.
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_1`</div>
+```{r plot-1}
+#| out-width: "100%"
+#| fig-height: 5.5
+
+get_figure_1()
+
+```
+::: caption
+Marco and Valentina's career paths are highlighted by a black outline. This figure only includes the CTC-18 grantees who responded to each stage of the survey (N = `r empl_place_evoluation |> filter( !any(is.na(employment_place)), .by = IDperson ) |> distinct(IDperson) |> nrow()`).
+:::
+:::
+
+### Career changes
+
+After returning to Switzerland, Marco decided to change careers. Like Marco, `r n_out_acad`% of the CTC-18 cohort were working outside of academia[^1] in 2022. What were the reasons behind these postdocs leaving academia?
+
+[^1]: A person conducting academic research or working in a public research organisation is considered to work in academia.
+
+The study highlights two reasons considered highly relevant by participants in the cohort who opted for careers outside of academia: the difficulty of obtaining a secure position (highly relevant for `r pct_hard_secure_position_vr`%) and the difficulty of obtaining a suitable academic position (highly relevant for `r pct_hard_suitable_position_vr`%). On the other end of the spectrum, the poor public recognition or status of academic careers was seen as very relevant by only `r pct_hard_poor_recogniton_vr`% of respondents.
+
+The figure below gives an overview of the reasons. It is important to note that the questionnaire focused mainly on challenges. However, other more positive reasons were also considered relevant, including interest in a different type of career (relevant or very relevant for `r pct_interest_other_career_r_vr`%) and the availability of a more interesting job elsewhere (relevant or very relevant for `r pct_more_interesting_job_r_vr`%).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_2`</div>
+```{r plot-2}
+#| out-width: "100%"
+#| fig-height: 7.75
+
+get_figure_2()
+
+```
+:::caption
+Cohort CTC-18: N = `r ctc18_clean |> drop_na(noresothcar) |> nrow()`.
+:::
+:::
+
+### Maintaining a commitment to research
+
+Of the people in the CTC-18 cohort who left academia like Marco, relatively few went into the public sector (`r not_acad_pulic`%). In fact, a significant proportion joined the private sector: `r not_acad_private_profit`% work in the private for-profit sector and `r not_acad_private_non_profit`% in the private not-for-profit sector
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_3`</div>
+```{r plot-interaction-academia-sector}
+#| out-width: "100%"
+#| fig-height: 3.75
+
+get_figure_3()
+
+```
+::: caption
+Cohort CTC-18: N = `r sum(acad_sector_plot_data$n)`.
+:::
+:::
+
+In 2022, `r not_acad_do_research`% of the people working in the private or non-academic sector were engaged in research and/or research mandates (all sectors combined[^2]). Of the entire CTC-18 cohort, only `r no_research_at_all`% were no longer doing research in 2022.
+
+[^2]: Public sector, private not-for-profit sector and private for-profit sector.
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_4`</div>
+```{r plot-4}
+#| out-width: "100%"
+#| fig-height: 3.75
+
+get_figure_4()
+
+```
+::: caption
+Cohorte CTC-18: N = `r sum(acad_activity_plot_data$n)`.
+:::
+:::
+
+### Prospects in the academic world
+
+In 2022, Valentina was still working in academia – like `r women_in_acad`% of the women in the CTC-18 cohort. A large majority of the CTC-18 cohort doing academic research in 2022 were attached to a university or university hospital (`r cohort_in_acad`%). The remaining `r 100 - cohort_in_acad`% were working at other institutions such as the Swiss Federal Institutes of Technology (ETH domain) or private research institutions. `r cohort_in_he`% of people in the CTC-18 cohort were employed by universities of applied sciences (UAS) or by universities of teacher education (UTE).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_5`</div>
+```{r plot-5}
+#| out-width: "100%"
+#| fig-height: 3.5
+
+get_figure_5()
+
+```
+::: caption
+Cohort CTC-18: N = `r sum(institutions_plot_data$n)`.
+:::
+:::
+
+Of the people who stayed in academia, `r n_prof`% became professors and `r n_mid_level`% obtained a mid-level academic position[^3]. This was not the case for Valentina, who remained a postdoctoral researcher, like `r n_junior`% of the CTC-18 cohort.
+
+[^3]: The following categories are included: "research associate / scientific collaborator", "lecturer / reader", "medical resident / assistant doctor", and "chief medical resident" / "attending physician".
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_6`</div>
+```{r plot-6}
+#| out-width: "100%"
+#| fig-height: 5
+
+get_figure_6()
+
+```
+::: caption
+Cohort CTC-18: `r plot_data_grantees_pos |> filter(grantee_new == grantees_name) |> pull(n) |> sum()` `r str_to_lower(grantees_name)` and `r plot_data_grantees_pos |> filter(grantee_new == non_grantees_name) |> pull(n) |> sum()` `r str_to_lower(non_grantees_name)`. We have grouped the categories "research associate / scientific collaborator", "lecturer / reader", and "medical resident / assistant doctor", and "chief medical resident" / "attending physician" in the study commissioned by the SNSF under the label "mid-level academic position". We have also grouped the categories "assistant professor without tenure track" "assistant professor with tenure track", "associate professor or similar" and "full professor or similar", under the label "professor".
+:::
+:::
+
+### Family dynamics
+
+Looking at their family situations, Valentina lived alone in 2018 (like `r leave_alone_2018`% of the CTC-18 cohort), while Marco lived with his partner (like `r couple_no_children_2018`%). It is more difficult to compare their family situations four years later, as the response rate for the CTC-18 cohort dropped sharply in the meantime (`r resp_rate_base$freq`% response rate in 2018, compared with `r resp_rate_mon4$freq`% in 2022)[^4]. Nevertheless, we do know that Marco has become a father (`r father_2020`% of men in 2018; `r father_2022`% in 2022) and now lives in a household with children, like a third of the cohort (`r couple_with_children_2022`%). Valentina also lives with a partner but does not have children, like `r couple_no_children_2022`% of the cohort. Between 2018 and 2022, the proportion of women who became mothers rose from  `r mother_2018`% to `r mother_2022`%.
+
+[^4]: It was not possible to collect this information manually, as was the case for other themes (see the box "What data did we use?" at the end of this data story).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_7`</div>
+```{r plot-7}
+#| out-width: "100%"
+#| fig-height: 6
+
+get_figure_7()
+
+```
+::: caption
+Cohort CTC-18: N (2018) = `r family_status_plot_data |> filter(year == 2018) |> pull(n) |> sum()` and N (2022) = `r family_status_plot_data |> filter(year == 2022) |> pull(n) |> sum()`. 
+:::
+:::
+
+### Conclusion
+
+This data story has highlighted the diverse trajectories of the researchers in the CTC-18 cohort. Through the fictional journeys of Valentina and Marco as well as the responses of the participants as a group, we have been able to observe some of the complex paths that careers can follow, with all their challenges and opportunities. 
+
+Since `r 100 - no_research_at_all`% of the CTC-18 cohort is still conducting research in different contexts, we can see that research continues to attract interest, whether in the setting of a university or a private organisation. The SNSF welcomes this diversity of careers because they benefit society. At the same time, the SNSF is aware of the current challenges facing early-career researchers.
+
+The cohort study is not yet complete, but it is already providing valuable insights that will inform research funding policies. The SNSF is currently revising its career funding strategy, and for this the results obtained to date provide an important basis.
+
+::: info-box
+### What data did we use?
+
+In 2018, of the `r n_asked` people invited, `r n_partial_answer` applicants responded at least partially to the questionnaire and were invited to take part in the follow-up surveys. To obtain a clear distinction and homogenous groups, we used the following definition for grantees and non-grantees:
+
+-   Grantees: the `r n_grantees_2018` people who received a positive funding decision in spring 2019 for their applications submitted in autumn 2018.
+-   Non-grantees: the `r n_non_grantees_2018` people who received a negative funding decision for their applications submitted in autumn 2018.
+-   Neither grantees nor non-grantees: the `r n_none_2018` people whose applications submitted in autumn 2018 were funded between 2019 and autumn 2022.
+
+In 2022, 219 individuals answered at least 70% of the survey questions.
+
+-   Grantees: responses from `r n_grantees_2022` individuals  (`r round(n_grantees_2022 / n_grantees_2018 * 100)`% of all grantees).
+-   Non-grantees: responses from `r n_non_grantees_2022` individuals  (`r round(n_non_grantees_2022 / n_non_grantees_2018 * 100)`% of all non-grantees).
+-   Neither grantees nor non-grantees: responses from `r n_none_2022` individuals (`r round(n_none_2022 / n_none_2018 * 100)`% of the `r n_none_2018` people mentioned above).  
+
+The professional details of the 189 people in the CTC-18 cohort who did not respond to the last survey in 2022 were collected manually. Reliable information could be obtained for 175 people.
+:::
+
+Data, text and code of this data story are [available on Github](`r params$github_url`) and [archived on Zenodo](`r params$doi`). <br>DOI: `r str_remove(params$doi, "https://doi.org/")`
+
+```{r prevent-internal-snsf-packages, include=FALSE}
+#| include: false
+
+# Internal SNSF packages must not be used in data stories, as their
+# pre-processing functions are internal and the corporate design differs from
+# the data portal.
+if (any(c("snfverse", "snf.preprocessing", "snf.plot") %in% 
+        loadedNamespaces())) {
+  stop(glue(
+    "You must not use internal SNSF packages in data stories.",
+    " Please resort to snf.datastory."
+  ))
+}
+```

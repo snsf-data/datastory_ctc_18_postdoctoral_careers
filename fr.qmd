@@ -1,0 +1,299 @@
+---
+title: "`r params$title`"
+format:
+  html:
+    toc: false
+    css: ["style.css"]
+    mainfont: Theinhardt
+    fontsize: "16px"
+    # To use instead of self-contained that has been deprecated
+    embed-resources: true
+    # Using custom page layout (via 'style.css')
+    page-layout: custom
+    # Open link in a new window by default
+    link-external-newwindow: true
+    # Display footnotes in pop-up window when hovering on it
+    footnotes-hover: true
+    fig-align: "center"
+    fig-dpi: 320
+    fig-format: retina
+execute:
+  echo: false
+  warning: false
+lang: fr
+params:
+  title: "De multiples carrières postdoctorales : défis et opportunités"
+  publication_date: ""
+  lang: "fr"
+  doi: ""
+  github_url: ""
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r general-setup}
+#| include: false
+
+# Install snf.datastory package if not available, otherwise load it
+if (!require("snf.datastory")) {
+  if (!require("devtools")) {
+    install.packages("devtools")
+    library(devtools)
+  }
+  install_github("snsf-data/snf.datastory")
+  library(snf.datastory)
+}
+
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(conflicted)
+library(here)
+library(ggforce)
+
+conflict_prefer("filter", "dplyr")
+
+# Set the locale for date formatting (Windows)
+Sys.setlocale(
+  "LC_TIME",
+  switch(
+    params$lang,
+    en = "English",
+    de = "German",
+    fr = "French"
+  )
+)
+
+# Create function to print number with local language-specific format
+print_num <- function(x) snf.datastory::print_num(x, lang = params$lang)
+
+# Knitr hook for local formatting of printed numbers
+knitr::knit_hooks$set(
+  inline = function(x) {
+    if (!is.numeric(x)) {
+      x
+    } else {
+      print_num(x)
+    }
+  }
+)
+
+
+```
+
+```{r print-header-infos}
+#| results: asis
+
+# Add publication date to header
+cat(format(as_datetime(params$publication_date), "%d.%m.%Y"))
+```
+
+```{r source-data-story-code}
+
+# Various custom functions
+source(here("R/functions/make_figures.R"))
+source(here("R/scripts/translations.R"))
+source(here("R/functions/utils.R"))
+# Loading and preprocessing the data needed for the data story
+source(here("R/scripts/prepare_data.R"))
+# The data used as inline code in the data story
+source(here("R/scripts/inline_code_data.R"))
+
+```
+
+**Améliorer les perspectives de la relève est un objectif clé du FNS. Les résultats intermédiaires d’une étude approfondie sur les carrières des postdoctorant·es ayant demandé un financement en 2018 sont désormais disponibles.**
+
+Pour avoir davantage d’informations sur l’évolution des carrières de la relève, le FNS a mandaté une étude de cohorte (Career Tracker Cohorts, voir encadré). L’étude, débutée en 2018, est menée auprès des postdoctorant∙es ayant sollicité un financement auprès du FNS.
+
+Les premières personnes à avoir participé à cette étude sont les requérant∙es ayant déposé une demande pour une bourse de mobilité en automne 2018 (cohorte CTC-18). Ce récit de données met en lumière les trajectoires de ces chercheuses et chercheurs en début de carrière. Que sont-ils devenus en 2022 ? A travers Valentina et Marco (personnages fictifs), nous allons suivre leur parcours.
+
+::: info-box
+### Enquête auprès des postdoctorant·es pendant dix ans
+
+L’étude de cohorte sur les carrières (Career Tracker Cohorts Study CTC) est menée par une équipe de l’Université de Berne, sur mandat du FNS. C'est une étude de panel longitudinale avec des cohortes annuelles. Le groupe cible est constitué de tous les requérant·es aux instruments de carrière au niveau postdoctoral, quelle que soit la décision de financement. Les instruments pris en compte sont (Early) Postdoc.Mobility (voir ci-après), Ambizione, PRIMA et Eccellenza.
+
+De 2018 à 2021, une nouvelle cohorte a été lancée chaque année. Depuis 2022, l’enquête n’est réalisée qu’auprès des cohortes existantes. Étalée sur dix ans, cette étude doit permettre d’en apprendre davantage sur les facteurs et les processus qui influencent les carrières. Ainsi, le FNS obtient de précieuses connaissances sur les différentes trajectoires professionnelles.
+
+### Bourses de mobilité postdoctorales
+
+Les bourses de mobilité postdoctorales Postdoc.Mobility (ainsi que les bourses Early Postdoc.Mobility, intégrées à Postdoc.Mobility depuis septembre 2020) s’adressent à des scientifiques qui ont obtenu leur doctorat et souhaitent s’engager dans une carrière scientifique ou académique en Suisse. Le séjour de recherche à l’étranger leur permet d’approfondir leurs connaissances, d’acquérir une plus grande indépendance scientifique et renforcer leur profil scientifique. Les bourses allouées sont d’une durée de 18 mois (Early Postdoc.Mobility) ou 24 mois (Postdoc.Mobility). Deux mises au concours ont lieu par année.
+:::
+
+### Parcours des mobilités
+
+En automne 2018, Valentina et Marco postulent pour une bourse de mobilité postdoctorale comme `r n_asked` autres personnes. Au printemps 2019, `r n_grantees_2018` personnes ont été sélectionnées pour bénéficier d’une telle bourse FNS, dont Valentina et Marco. Tous deux quittent la Suisse en 2019. Valentina effectue un séjour en Amérique du Nord, tandis que Marco se rend dans un pays européen.
+
+En 2019, les régions les plus prisées par les bénéficiaires d’une bourse de mobilité postdoctorale de la cohorte CTC-18 (ci-après bénéficiaires CTC-18) sont l’Amérique du Nord (`r grantees_am_2019`%) et l’Europe (`r grantees_eu_2019`%). Seuls `r grantees_other_2019`% se sont rendus dans d’autres régions du monde (Afrique, Asie, Océanie), tandis que `r grantees_ch_2019`% n’ont pas encore effectué de mobilité et sont en Suisse. Même s’ils n’ont pas reçu une bourse, les non-bénéficiaires de la cohorte CTC-18 (ci-après non-bénéficiaires CTC-18) ne sont que `r non_grantees_ch_2019`% à être encore en Suisse en 2019. `r non_grantees_eu_2019`% ont choisi de se rendre dans un pays européen, `r non_grantees_am_2019`% sont partis en Amérique du Nord et `r non_grantees_other_2019`% ont opté pour une autre destination (Afrique, Asie, Océanie).
+
+Après presque 2 ans à l’étranger, Marco termine son séjour en 2021 et rentre en Suisse. Valentina a eu la possibilité de prolonger son postdoctorat et est restée en Amérique du Nord. En 2022, `r grantees_abroad_2022`% de la cohorte CTC-18 sont, tout comme Valentina, encore à l’étranger (et plus particulièrement en Europe). Seulement `r grantees_ch_2022`% d’entre eux sont déjà de retour en Suisse. La figure ci-dessous montre les différents parcours de mobilité pour les bénéficiaires CTC-18.
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_1`</div>
+```{r plot-1}
+#| out-width: "100%"
+#| fig-height: 5.5
+
+get_figure_1()
+
+```
+::: caption
+Les parcours de Marco et Valentina sont mis en évidence par un tracé avec bordure. Uniquement les bénéficiaires CTC-18 ayant répondu à chaque étape de l’enquête sont inclus∙es dans cette figure (N = `r empl_place_evoluation |> filter( !any(is.na(employment_place)), .by = IDperson ) |> distinct(IDperson) |> nrow()`).
+:::
+:::
+
+### Réorientation professionnelle et nouvelles perspectives
+
+Après son retour en Suisse, Marco décide de changer de carrière. Tout comme lui, `r n_out_acad`% de la cohorte CTC-18 travaillent hors du milieu académique[^1] en 2022. Quelles sont les raisons qui poussent les postdoctorant∙es à quitter le milieu académique ?
+
+[^1]: Est considérée comme travaillant dans le milieu académique une personne menant une recherche académique ou travaillant dans un organisme de recherche public.
+
+L’étude met en évidence deux raisons jugées comme très pertinentes par les participant∙es de la cohorte ayant orienté leur carrière hors du milieu académique : la difficulté à obtenir un poste permanent (très pertinent pour `r pct_hard_secure_position_vr`%), ainsi que la difficulté à obtenir un poste universitaire approprié (très pertinent pour `r pct_hard_suitable_position_vr`%). Au contraire, la faible reconnaissance publique ou le faible statut des carrières universitaires n’est considéré comme très pertinent que par `r pct_hard_poor_recogniton_vr`% des répondant∙es. La figure ci-dessous donne une vue d’ensemble des raisons. Il est important de noter que le questionnaire s’est principalement focalisé sur les difficultés. Cependant, d’autres raisons plus positives ont également été jugées pertinentes, comme l’intérêt pour un type de carrière différent (pertinent ou très pertinent pour `r pct_interest_other_career_r_vr`%) et un travail plus intéressant disponible (pertinent ou très pertinent pour `r pct_more_interesting_job_r_vr`%).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_2`</div>
+```{r plot-2}
+#| out-width: "100%"
+#| fig-height: 7.75
+
+get_figure_2()
+
+```
+:::caption
+Cohorte CTC-18 : N = `r ctc18_clean |> drop_na(noresothcar) |> nrow()`.
+:::
+:::
+
+### Maintenir un engagement dans la recherche
+
+Comme Marco, les personnes de la cohorte CTC-18 travaillant hors milieu académique sont peu à s’être orientées vers le secteur public (`r not_acad_pulic`%). En effet, une part importante s’est dirigée vers le secteur privé : `r not_acad_private_profit`% sont dans le secteur privé à but lucratif et `r not_acad_private_non_profit`% travaillent dans le secteur privé à but non lucratif.
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_3`</div>
+```{r plot-interaction-academia-sector}
+#| out-width: "100%"
+#| fig-height: 3.75
+
+get_figure_3()
+
+```
+::: caption
+Cohorte CTC-18 : N = `r sum(acad_sector_plot_data$n)`.
+:::
+:::
+
+En 2022, `r not_acad_do_research`% des personnes travaillant dans le secteur privé ou hors académique se consacrent à la recherche et/ou effectuent des mandats de recherche (tous secteurs confondus[^2]). Sur l’ensemble de la cohorte CTC-18, seules `r no_research_at_all`% des personnes ne font plus de recherche en 2022.
+
+[^2]: Secteur public, secteur privé à but non lucratif et secteur privé à but lucratif.
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_4`</div>
+```{r plot-4}
+#| out-width: "100%"
+#| fig-height: 3.75
+
+get_figure_4()
+```
+::: caption
+Cohorte CTC-18: N = `r sum(acad_activity_plot_data$n)`.
+:::
+:::
+
+### Perspectives dans le milieu académique
+
+En 2022, Valentina travaille dans le milieu académique, comme `r women_in_acad`% des femmes de la cohorte CTC-18. En outre, la grande majorité de la cohorte CTC-18 faisant de la recherche académique en 2022 est rattachée à une université ou un hôpital universitaire (`r cohort_in_acad`% en 2022). Les `r 100 - cohort_in_acad`% restant travaillent dans d’autres institutions telles que les écoles Polytechniques Fédérales (EPF) ou des instituts de recherche privés. `r cohort_in_he`% des personnes de la cohorte CTC-18 sont engagées dans des hautes écoles spécialisées (HES) ou pédagogiques (HEP).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_5`</div>
+```{r plot-5}
+#| out-width: "100%"
+#| fig-height: 3.5
+
+get_figure_5()
+
+```
+::: caption
+Cohorte CTC-18 : N = `r sum(institutions_plot_data$n)`.
+:::
+:::
+
+Parmi les personnes évoluant dans le milieu universitaire, `r n_prof`% ont été nommées professeur∙es et `r n_mid_level`% ont obtenu un poste de niveau intermédiaire[^3]. Ce n’est pas le cas de Valentina qui est postdoctorante, comme `r n_junior`% de la cohorte CTC-18.
+
+[^3]: Il s’agit des catégories suivantes : « research associate / scientific collaborator »,  « lecturer / reader », « medical resident / assistant doctor » et « chief medical resident » / « attending physician ».
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_6`</div>
+```{r plot-6}
+#| out-width: "100%"
+#| fig-height: 5
+
+get_figure_6()
+
+```
+::: caption
+Cohorte CTC-18 : `r plot_data_grantees_pos |> filter(grantee_new == grantees_name) |> pull(n) |> sum()` `r str_to_lower(grantees_name)` et `r plot_data_grantees_pos |> filter(grantee_new == non_grantees_name) |> pull(n) |> sum()` `r str_to_lower(non_grantees_name)`. Nous avons regroupé les catégories « research associate / scientific collaborator », « lecturer / reader », « medical resident / assistant doctor » et « chief medical resident » / « attending physician », utilisées dans l’étude mandatée par le FNS, sous le label « corps intermédiaire ». Nous avons également regroupé les catégories « assistant professor without tenure track », « assistant professor with tenure track », « associate professor or similar », et « full professor or similar », sous le label « professeur∙e ».
+:::
+:::
+
+### Dynamique familiale
+
+Si l’on se penche sur la situation familiale, Valentina vit seule en 2018 (comme `r leave_alone_2018`% de la cohorte CTC-18), tandis que Marco est en couple (comme `r couple_no_children_2018`%). Quatre ans plus tard, il est plus difficile de comparer leur situation familiale, car le taux de réponse de la cohorte CTC-18 a fortement baissé entre temps (`r resp_rate_base$freq`% de réponse en 2018, contre `r resp_rate_mon4$freq`% en 2022)[^4]. Néanmoins, nous savons que Marco est devenu père (`r father_2020`% des hommes en 2018 ; `r father_2022`% en 2022) et vit maintenant en ménage avec enfant, comme un tiers de la cohorte (`r couple_with_children_2022`%). Valentina vit également en couple, mais n’a pas d’enfant, comme `r couple_no_children_2022`% de la cohorte. Entre 2018 et 2022, la part des femmes devenues mères est passée de `r mother_2018`% à `r mother_2022`%.
+
+[^4]: Ces informations n’ont pas pu être récoltées manuellement comme pour les autres thématiques (voir l’encadré « Quelles données avons-nous utilisées ? » à la fin de ce récit de données).
+
+::: plot-box
+<div class="plot-title">`r fig_titles$fig_7`</div>
+```{r plot-7}
+#| out-width: "100%"
+#| fig-height: 6
+
+get_figure_7()
+
+```
+::: caption
+Cohorte CTC-18 : N (2018) = `r family_status_plot_data |> filter(year == 2018) |> pull(n) |> sum()` et N (2022) = `r family_status_plot_data |> filter(year == 2022) |> pull(n) |> sum()`. 
+:::
+:::
+
+### Conclusion
+
+Ce récit de données a pu mettre en lumière la diversité des trajectoires des chercheurs et chercheuses de la cohorte CTC-18. À travers les parcours de Valentina, Marco et les réponses des participant∙es, nous avons pu observer certaines ramifications complexes des choix de carrière, entre défis et opportunités.
+
+Avec `r 100 - no_research_at_all`% de la cohorte CTC-18 menant de la recherche dans différents contextes, nous constatons que cette dernière continue de susciter l’intérêt, qu’elle soit menée dans une université ou un organisme privé. Le FNS se réjouit de cette diversité de carrières car elles bénéficient à la société. Il est toutefois conscient des enjeux actuels concernant les chercheuses et chercheurs en début de carrière.
+
+L’étude de cohorte n’est pas encore terminée, mais elle offre déjà de précieux éclairages pour orienter les politiques d’encouragement de la relève scientifique. Ainsi le FNS révise actuellement sa stratégie d’encouragement des carrières. Les résultats obtenus jusqu’à présent fournissent des bases importantes à cet égard.
+
+::: info-box
+### Quelles données avons-nous utilisées ?
+
+En 2018, sur les `r n_asked` personnes invitées, `r n_partial_answer` requérant∙es ont répondu au moins partiellement au questionnaire et ont été invité∙es à participer aux enquêtes de suivi. Afin d’obtenir une distinction claire et des groupes homogènes, nous avons utilisé la définition suivante pour les bénéficiaires et les non-bénéficiaires : 
+
+-   Bénéficiaires : les `r n_grantees_2018` personnes ayant reçu une décision de financement positive au printemps 2019 pour leur requête déposée à l’automne 2018.
+-   Non-bénéficiaires : les `r n_non_grantees_2018` personnes n’ayant pas reçu de décision de financement positive pour les requêtes déposées en automne 2018.
+-   Considérées ni comme bénéficiaires ni comme non-bénéficiaires : `r n_none_2018` personnes n’ayant pas reçu de décision de financement positive en 2018, mais dont une requête a été financée plus tard (entre le printemps 2019 et l’automne 2022).
+
+En 2022, 219 personnes ont répondu à au moins 70% des questions de l’enquête.
+
+-   Bénéficiaires : réponses de `r n_grantees_2022` personnes (`r round(n_grantees_2022 / n_grantees_2018 * 100)`% de tout∙es les bénéficiaires).
+-   Non-bénéficiaires : réponses de `r n_non_grantees_2022` personnes (`r round(n_non_grantees_2022 / n_non_grantees_2018 * 100)`% de tout∙es les non-bénéficiaires).
+-   Considérées ni comme bénéficiaires ni comme non-bénéficiaires : réponses de `r n_none_2022` personnes (`r round(n_none_2022 / n_none_2018 * 100)`% des `r n_none_2018` personnes décrites ci-dessus).  
+
+Concernant les 189 membres de la cohorte CTC-18 qui n’ont pas participé à la dernière enquête en 2022, nous avons collecté manuellement les informations sur leur emploi. Nous avons pu obtenir une information fiable pour 175 personnes.
+:::
+
+Les données, le texte et le code de ce récit de données sont [disponibles sur Github](`r params$github_url`) et [archivés sur Zenodo](`r params$doi`). <br>DOI: `r str_remove(params$doi, "https://doi.org/")`
+
+```{r prevent-internal-snsf-packages, include=FALSE}
+#| include: false
+
+# Internal SNSF packages must not be used in data stories, as their
+# pre-processing functions are internal and the corporate design differs from
+# the data portal.
+if (any(c("snfverse", "snf.preprocessing", "snf.plot") %in%
+        loadedNamespaces())) {
+  stop(glue(
+    "You must not use internal SNSF packages in data stories.",
+    " Please resort to snf.datastory."
+  ))
+}
+
+```
